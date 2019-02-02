@@ -250,6 +250,20 @@ class MpFileExplorer(Pyboard):
 
                 self.rm(f)
 
+    def reload(self, fname):
+        try:
+            name=os.path.splitext(fname)[0]
+            cmd="import sys"
+            self.exec_(cmd)
+            cmd="if \"%s\" in sys.modules: del sys.modules[\"%s\"]"%(name,name)
+            self.exec_(cmd)
+            cmd="import %s"%name
+            self.exec_(cmd)
+        except PyboardError as e:
+            print("cmd: '%s'"%cmd)
+            print("error: %s"%e)
+
+
     @retry(PyboardError, tries=MAX_TRIES, delay=1, backoff=2, logger=logging.root)
     def put(self, src, dst=None):
 

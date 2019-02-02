@@ -374,11 +374,24 @@ class MpFileShell(cmd.Cmd):
 
         print(os.getcwd())
 
+    def do_reload(self, args):
+        """reload <REMOTE FILE>
+        Remote unload module and import again.
+        """
+        if not len(args):
+            self.__error("Missing arguments: <REMOTE FILE>")
+        else:
+            s_args = self.__parse_file_names(args)
+            file_name = s_args.pop(0)
+            self.fe.reload(file_name)
+            
+        
     def do_put(self, args):
-        """put <LOCAL FILE> [<REMOTE FILE>]
+        """put [-r] <LOCAL FILE> [<REMOTE FILE>]
         Upload local file. If the second parameter is given,
         its value is used for the remote file name. Otherwise the
         remote file will be named the same as the local file.
+          -r -- remove module and import again, after upload
         """
 
         if not len(args):
@@ -388,24 +401,32 @@ class MpFileShell(cmd.Cmd):
 
             s_args = self.__parse_file_names(args)
             if not s_args:
-                return
-            elif len(s_args) > 2:
+                return False
+            elif len(s_args) > 3:
                 self.__error(
                     "Only one ore two arguments allowed: <LOCAL FILE> [<REMOTE FILE>]"
                 )
-                return
+                return False
 
-            lfile_name = s_args[0]
+            if s_args[0] == "-r":
+                reloflag=True
+                s_args.pop(0)
+
+            lfile_name = s_args.pop(0)
 
             if len(s_args) > 1:
-                rfile_name = s_args[1]
+                rfile_name = s_args.pop(0)
             else:
                 rfile_name = lfile_name
 
             try:
                 self.fe.put(lfile_name, rfile_name)
+                if reloflag == True:
+                    self.do_reload(rfile_name)
+                return True
             except IOError as e:
                 self.__error(str(e))
+        return False
 
     def complete_put(self, *args):
         files = [o for o in os.listdir(".") if os.path.isfile(os.path.join(".", o))]
