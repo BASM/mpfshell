@@ -185,10 +185,17 @@ class MpFileShell(cmd.Cmd):
         - a telnet host, e.g        tn:192.168.1.1 or tn:192.168.1.1,login,passwd
         - a websocket host, e.g.    ws:192.168.1.1 or ws:192.168.1.1,passwd
         """
+        
+        if not len(args):
+            if self.lastport == None:
+                self.__error("Missing argument: <PORT>")
+            else:
+                args=self.lastport
 
         if not len(args):
             self.__error("Missing argument: <PORT>")
         else:
+            self.lastport=args
             if (
                 not args.startswith("ser:/dev/")
                 and not args.startswith("ser:COM")
