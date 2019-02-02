@@ -40,9 +40,11 @@ from mp.conbase import ConError
 from mp.mpfexp import MpFileExplorer, MpFileExplorerCaching, RemoteIOError
 from mp.pyboard import PyboardError
 from mp.tokenizer import Tokenizer
+from mp.retry import retry
 
 
 class MpFileShell(cmd.Cmd):
+    MAX_TRIES = 3
     def __init__(self, color=False, caching=False, reset=False):
         if color:
             colorama.init()
@@ -115,6 +117,7 @@ class MpFileShell(cmd.Cmd):
         else:
             print("\n" + msg + "\n")
 
+    @retry(ConError, tries=MAX_TRIES, delay=1, backoff=2, logger=logging.root)
     def __connect(self, port):
 
         try:
