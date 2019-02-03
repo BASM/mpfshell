@@ -408,6 +408,7 @@ class MpFileShell(cmd.Cmd):
                 )
                 return False
 
+            reloflag=False
             if s_args[0] == "-r":
                 reloflag=True
                 s_args.pop(0)
