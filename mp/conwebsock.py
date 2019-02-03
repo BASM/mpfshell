@@ -128,7 +128,8 @@ class ConWebsock(ConBase, threading.Thread):
         return data.encode("utf-8")
 
     def write(self, data):
-
+        if data[0]==0x1d: #TODO use code from mpfshell.py repl.exit_character 
+            raise 
         self.ws.send(data)
         return len(data)
 
